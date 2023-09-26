@@ -10,7 +10,7 @@ const breakpoints = [
             {name: 'localStorage'},
             {name: 'sessionStorage'},
             {name: 'indexedDB'},
-            {name: 'name'}, // can pottentially be used to link two tabs
+            {name: 'name'}, // can potentially be used to link two tabs
             {name: 'innerWidth'},
             {name: 'innerHeight'},
             {name: 'outerWidth'},
@@ -154,13 +154,13 @@ const breakpoints = [
             //{name: 'msMaxTouchPoints'}, Microsoft only
             {name: 'mediaCapabilities'}, // codecs, mime types, display
             {name: 'mediaDevices'}, // screens, cameras, microphones
-            {name: 'mimeTypes'}, //reveals instlled plugins
+            {name: 'mimeTypes'}, //reveals installed plugins
             {name: 'deviceMemory'}, // memory in Gb
             {name: 'connection'}, // changes over time
             {name: 'onLine'},
             {name: 'keyboard'},
             {name: 'permissions'},
-            {name: 'presentation'}, //TODO nees double checking
+            {name: 'presentation'}, //TODO needs double checking
             {name: 'product'},
             {name: 'productSub'},
             {name: 'storage'},
@@ -176,7 +176,11 @@ const breakpoints = [
             {name: 'getGamepads'},
             // {name: 'getUserMedia'},
             {name: 'javaEnabled'},
-            {name: 'requestMediaKeySystemAccess'} // Encrypted Media Extensions API
+            {name: 'requestMediaKeySystemAccess'}, // Encrypted Media Extensions API
+
+            // Protected Audience API
+            {name: 'joinAdInterestGroup', saveArguments: true},
+            {name: 'runAdAuction', saveArguments: true},
         ]
     },
     {
@@ -546,7 +550,7 @@ const breakpoints = [
             {
                 name: 'createObjectURL',
                 test: 'URL.createObjectURL(new Blob())'
-            }// it can pottentially allow tabs to talk with each other
+            }// it can potentially allow tabs to talk with each other
         ]
     },
     {
@@ -676,7 +680,7 @@ module.exports = breakpoints;
  * @typedef MethodBreakpoint
  * @property {string} name - name of the method
  * @property {string=} test - test expression that should trigger given breakpoint
- * @property {string=} description - human redable description of a breakpoint
+ * @property {string=} description - human readable description of a breakpoint
  * @property {string=} condition - additional condition that has to be truthy for the breakpoint to fire
  * @property {boolean=} saveArguments - save arguments of each call (defaults to false)
  * @property {string=} cdpId - optional breakpointID from CDP
@@ -686,7 +690,7 @@ module.exports = breakpoints;
  * @typedef PropertyBreakpoint
  * @property {string} name - name of the property
  * @property {string=} test - test expression that should trigger given breakpoint
- * @property {string=} description - human redable description of a breakpoint
+ * @property {string=} description - human readable description of a breakpoint
  * @property {string=} condition - additional condition that has to be truthy for the breakpoint to fire
  * @property {boolean=} saveArguments - save arguments of each call (defaults to false)
  * @property {boolean=} setter - hook up to a property setter instead of getter (which is a default)

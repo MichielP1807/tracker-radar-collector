@@ -36,7 +36,9 @@ function openBrowser(log, proxyHost, executablePath) {
         args: [
             // enable FLoC
             '--enable-blink-features=InterestCohortAPI',
-            '--enable-features="FederatedLearningOfCohorts:update_interval/10s/minimum_history_domain_size_required/1,FlocIdSortingLshBasedComputation,InterestCohortFeaturePolicy"',
+            // '--enable-features="FederatedLearningOfCohorts:update_interval/10s/minimum_history_domain_size_required/1,FlocIdSortingLshBasedComputation,InterestCohortFeaturePolicy"',
+            // Extra features for Privacy Sandbox APIs:
+            '--enable-features="PrivacySandboxAdsAPIsOverride,InterestGroupStorage,AdInterestGroupAPI,Fledge,FencedFrames,AllowURNsInIframes,BrowsingTopics,ConversionMeasurement,FederatedLearningOfCohorts:update_interval/10s/minimum_history_domain_size_required/1,FlocIdSortingLshBasedComputation,InterestCohortFeaturePolicy"',
             '--js-flags="--async-stack-traces --stack-trace-limit 32"'
         ]
     };
