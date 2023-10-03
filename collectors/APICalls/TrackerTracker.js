@@ -15,7 +15,9 @@ const breakpointScriptTemplate = fs.readFileSync(path.join(__dirname, 'breakpoin
  */
 function getBreakpointScript(breakpoint, description) {
     // only save arguments if requested for given breakpoint
-    const argumentCollection = breakpoint.saveArguments ? `args: Array.from(arguments).map(a => a.toString())` : '';
+    // const argumentCollection = breakpoint.saveArguments ? `args: Array.from(arguments).map(a => a.toString())` : '';
+    // Don't stringify arguments, they will get JSON encoded later
+    const argumentCollection = breakpoint.saveArguments ? `args: Array.from(arguments)` : '';
 
     let breakpointScript = breakpointScriptTemplate
         .replace('ARGUMENT_COLLECTION', argumentCollection)
@@ -47,7 +49,7 @@ class TrackerTracker {
         /**
          * @type {function(...any): void}
          */
-        this._log = () => {};
+        this._log = () => { };
         /**
          * @type {function(string, object=): Promise<object>}
          */
@@ -93,7 +95,7 @@ class TrackerTracker {
     /**
      * @param {{log: function(...any): void}} options
      */
-    async init({log}) {
+    async init({ log }) {
         this._log = log;
 
         await this._send('Debugger.enable');
@@ -157,7 +159,7 @@ class TrackerTracker {
                 ...breakpoint,
                 description, // save concrete description
             });
-        } catch(e) {
+        } catch (e) {
             const error = (typeof e === 'string') ? e : e.message;
             if (
                 !error.includes('Target closed.') && // we don't care if tab was closed during this opperation
@@ -176,7 +178,7 @@ class TrackerTracker {
      */
     async setupContextTracking(contextId = undefined) {
         const allBreakpointsSet = allBreakpoints
-            .map(async ({proto, global, props, methods}) => {
+            .map(async ({ proto, global, props, methods }) => {
                 const obj = global || `${proto}.prototype`;
                 const propPromises = props.map(async prop => {
                     const expression = `Reflect.getOwnPropertyDescriptor(${obj}, '${prop.name}').${prop.setter === true ? 'set' : 'get'}`;
@@ -191,10 +193,10 @@ class TrackerTracker {
                     const description = method.description || `${obj}.${method.name}`;
                     await this._addBreakpoint(contextId, expression, description, method);
                 });
-    
+
                 await Promise.all(methodPromises);
             });
-        
+
         await Promise.all(allBreakpointsSet);
     }
 
@@ -253,7 +255,7 @@ class TrackerTracker {
             // calculate absolute URL
             const urlObj = new URL(script, this._mainURL);
             script = urlObj.href;
-        } catch(e) {
+        } catch (e) {
             this._log('⚠️ invalid source, assuming global', script);
             script = this._mainURL;
         }
@@ -294,7 +296,7 @@ class TrackerTracker {
 
         try {
             payload = JSON.parse(params.payload);
-        } catch(e) {
+        } catch (e) {
             this._log('🚩 invalid breakpoint payload', params.payload);
             return null;
         }
