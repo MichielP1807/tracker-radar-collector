@@ -7,7 +7,7 @@ const URL = require('url').URL;
 const crypto = require('crypto');
 const {Buffer} = require('buffer');
 
-const DEFAULT_SAVE_HEADERS = ['etag', 'set-cookie', 'cache-control', 'expires', 'pragma', 'p3p', 'timing-allow-origin', 'access-control-allow-origin', 'accept-ch'];
+const DEFAULT_SAVE_HEADERS = ['etag', 'set-cookie', 'cache-control', 'expires', 'pragma', 'p3p', 'timing-allow-origin', 'access-control-allow-origin', 'accept-ch', 'permissions-policy'];
 
 class RequestCollector extends BaseCollector {
 
@@ -51,17 +51,27 @@ class RequestCollector extends BaseCollector {
     async addTarget({cdpClient}) {
         await cdpClient.send('Runtime.enable');
         await cdpClient.send('Runtime.setAsyncCallStackDepth', {maxDepth: 32});
-
+        await cdpClient.send('Storage.setInterestGroupTracking', {enable: true});
         await cdpClient.send('Network.enable');
 
         await Promise.all([
+            cdpClient.on('Storage.interestGroupAccessed', r => this.handleInterestGroup(r)),
             cdpClient.on('Network.requestWillBeSent', r => this.handleRequest(r, cdpClient)),
             cdpClient.on('Network.webSocketCreated', r => this.handleWebSocket(r)),
             cdpClient.on('Network.responseReceived', r => this.handleResponse(r)),
             cdpClient.on('Network.responseReceivedExtraInfo', r => this.handleResponseExtraInfo(r)),
             cdpClient.on('Network.loadingFailed', r => this.handleFailedRequest(r, cdpClient)),
-            cdpClient.on('Network.loadingFinished', r => this.handleFinishedRequest(r, cdpClient))
+            cdpClient.on('Network.loadingFinished', r => this.handleFinishedRequest(r, cdpClient)),
         ]);
+        this._log("hmmm")
+    }
+
+    /**
+     * 
+     * @param {import("devtools-protocol").Protocol.Storage.InterestGroupAccessedEvent} group 
+     */
+    handleInterestGroup(group) {
+        this._log('Interest group event:', group);
     }
 
     /**

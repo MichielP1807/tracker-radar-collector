@@ -9,6 +9,8 @@ const TraceCollector = require('./collectors/TraceCollector');
 const ScreenshotCollector = require('./collectors/ScreenshotCollector');
 const CMPCollector = require('./collectors/CMPCollector');
 
+const InterestGroupCollector = require('./collectors/InterestGroupCollector');
+
 // reexport main pieces of code so that they can be easily imported when this project is used as a dependency
 // e.g. `const {crawlerConductor} = require('3p-crawler');`
 module.exports = {
@@ -22,4 +24,5 @@ module.exports = {
     TraceCollector,
     ScreenshotCollector,
     CMPCollector,
+    InterestGroupCollector
 };

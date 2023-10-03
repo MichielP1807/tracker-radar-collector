@@ -20,7 +20,7 @@ const MOBILE_VIEWPORT = {
     hasTouch: true
 };
 
-// for debugging: will lunch in window mode instad of headless, open devtools and don't close windows after process finishes
+// for debugging: will lunch in window mode instead of headless, open devtools and don't close windows after process finishes
 const VISUAL_DEBUG = false;
 
 /**
