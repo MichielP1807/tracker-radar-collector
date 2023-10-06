@@ -7,8 +7,8 @@ const breakpoints = [
         proto: 'Document',
         props: [],
         methods: [
-            { name: 'interestCohort' }, // FLoC
-            { name: 'browsingTopics' }, // Topics API
+            { name: 'interestCohort', saveArguments: true }, // FLoC
+            { name: 'browsingTopics', saveArguments: true }, // Topics API
         ]
     },
     {

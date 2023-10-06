@@ -7,7 +7,7 @@ const URL = require('url').URL;
 const crypto = require('crypto');
 const {Buffer} = require('buffer');
 
-const DEFAULT_SAVE_HEADERS = ['etag', 'set-cookie', 'cache-control', 'expires', 'pragma', 'p3p', 'timing-allow-origin', 'access-control-allow-origin', 'accept-ch', 'permissions-policy'];
+const DEFAULT_SAVE_HEADERS = ['etag', 'set-cookie', 'cache-control', 'expires', 'pragma', 'p3p', 'timing-allow-origin', 'access-control-allow-origin', 'accept-ch', 'permissions-policy', 'sec-browsing-topics'];
 
 class RequestCollector extends BaseCollector {
 
@@ -147,7 +147,7 @@ class RequestCollector extends BaseCollector {
         // requestWillBeSent(A) requestWillBeSent(B) requestWillBeSent(C) responseReceived()
         // responseReceived doesn't fire for each redirect, so we can't use it to save response for each redirect
         // thankfully response data for request A are available in requestWillBeSent(B) event, request B response is in requestWillBeSent(C), etc.
-        // we can also easily match those requests togheter because they all have same requestId
+        // we can also easily match those requests together because they all have same requestId
         // so what we do here is copy those responses to corresponding requests
         if (redirectResponse) {
             const previousRequest = this.findLastRequestWithId(id);
