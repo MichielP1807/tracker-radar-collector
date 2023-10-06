@@ -95,7 +95,7 @@ class TrackerTracker {
     /**
      * @param {{log: function(...any): void}} options
      */
-    async init({ log }) {
+    async init({log}) {
         this._log = log;
 
         await this._send('Debugger.enable');
@@ -178,7 +178,7 @@ class TrackerTracker {
      */
     async setupContextTracking(contextId = undefined) {
         const allBreakpointsSet = allBreakpoints
-            .map(async ({ proto, global, props, methods }) => {
+            .map(async ({proto, global, props, methods}) => {
                 const obj = global || `${proto}.prototype`;
                 const propPromises = props.map(async prop => {
                     const expression = `Reflect.getOwnPropertyDescriptor(${obj}, '${prop.name}').${prop.setter === true ? 'set' : 'get'}`;

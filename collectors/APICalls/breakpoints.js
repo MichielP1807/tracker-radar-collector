@@ -7,8 +7,8 @@ const breakpoints = [
         proto: 'Document',
         props: [],
         methods: [
-            { name: 'interestCohort', saveArguments: true }, // FLoC
-            { name: 'browsingTopics', saveArguments: true }, // Topics API
+            {name: 'interestCohort', saveArguments: true}, // FLoC
+            {name: 'browsingTopics', saveArguments: true}, // Topics API
         ]
     },
     {
@@ -16,8 +16,8 @@ const breakpoints = [
         props: [],
         methods: [
             // Protected Audience API
-            { name: 'joinAdInterestGroup', saveArguments: true },
-            { name: 'runAdAuction', saveArguments: true },
+            {name: 'joinAdInterestGroup', saveArguments: true},
+            {name: 'runAdAuction', saveArguments: true},
         ]
     },
 ];

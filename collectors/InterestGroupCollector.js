@@ -10,7 +10,7 @@ class InterestGroupCollector extends BaseCollector {
     /**
      * @param {import('./BaseCollector').CollectorInitOptions} options 
      */
-    init({ log }) {
+    init({log}) {
         /**
          * @type {any[]}
          */
@@ -21,8 +21,8 @@ class InterestGroupCollector extends BaseCollector {
     /**
      * @param {{cdpClient: import('puppeteer').CDPSession, url: string, type: import('./TargetCollector').TargetType}} targetInfo 
      */
-    async addTarget({ cdpClient }) {
-        await cdpClient.send('Storage.setInterestGroupTracking', { "enable": true });
+    async addTarget({cdpClient}) {
+        await cdpClient.send('Storage.setInterestGroupTracking', {"enable": true});
 
         await Promise.all([
             cdpClient.on('Storage.interestGroupAccessed', r => this.handleInterestGroup(r))
@@ -42,7 +42,7 @@ class InterestGroupCollector extends BaseCollector {
      * @returns {any[]}
      */
     getData() {
-        return this._interestGroups
+        return this._interestGroups;
     }
 }
 

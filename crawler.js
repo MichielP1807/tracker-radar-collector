@@ -40,7 +40,8 @@ function openBrowser(log, proxyHost, executablePath) {
             // Extra features for Privacy Sandbox APIs:
             '--enable-features="PrivacySandboxAdsAPIsOverride,InterestGroupStorage,AdInterestGroupAPI,Fledge,FencedFrames,AllowURNsInIframes,BrowsingTopics,ConversionMeasurement,FederatedLearningOfCohorts:update_interval/10s/minimum_history_domain_size_required/1,FlocIdSortingLshBasedComputation,InterestCohortFeaturePolicy"',
             '--js-flags="--async-stack-traces --stack-trace-limit 32"'
-        ]
+        ],
+        // headless: 'new' // new headless mode https://developer.chrome.com/articles/new-headless/
     };
     if (VISUAL_DEBUG) {
         args.headless = false;
