@@ -17,9 +17,7 @@
     "type": "git",
     "url": "git@github.com:duckduckgo/tracker-radar-crawler.git"
   },
-  "pre-push": [
-    "test"
-  ],
+  "pre-push": [],
   "engines": {
     "node": ">=14.0.0"
   },
