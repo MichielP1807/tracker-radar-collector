@@ -51,11 +51,9 @@ class RequestCollector extends BaseCollector {
     async addTarget({cdpClient}) {
         await cdpClient.send('Runtime.enable');
         await cdpClient.send('Runtime.setAsyncCallStackDepth', {maxDepth: 32});
-        await cdpClient.send('Storage.setInterestGroupTracking', {enable: true});
         await cdpClient.send('Network.enable');
 
         await Promise.all([
-            cdpClient.on('Storage.interestGroupAccessed', r => this.handleInterestGroup(r)),
             cdpClient.on('Network.requestWillBeSent', r => this.handleRequest(r, cdpClient)),
             cdpClient.on('Network.webSocketCreated', r => this.handleWebSocket(r)),
             cdpClient.on('Network.responseReceived', r => this.handleResponse(r)),
@@ -63,15 +61,6 @@ class RequestCollector extends BaseCollector {
             cdpClient.on('Network.loadingFailed', r => this.handleFailedRequest(r, cdpClient)),
             cdpClient.on('Network.loadingFinished', r => this.handleFinishedRequest(r, cdpClient)),
         ]);
-        this._log("hmmm")
-    }
-
-    /**
-     * 
-     * @param {import("devtools-protocol").Protocol.Storage.InterestGroupAccessedEvent} group 
-     */
-    handleInterestGroup(group) {
-        this._log('Interest group event:', group);
     }
 
     /**
