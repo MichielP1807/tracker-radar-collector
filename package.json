@@ -44,6 +44,7 @@
     "commander": "^2.19.0",
     "progress": "^2.0.3",
     "puppeteer": "^21.3.5",
+    "puppeteer-autoscroll-down": "^1.1.2",
     "tldts": "^4.0.3"
   }
 }

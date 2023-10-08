@@ -5,6 +5,9 @@ const {createTimer} = require('./helpers/timer');
 const wait = require('./helpers/wait');
 const tldts = require('tldts');
 
+const fs = require('fs');
+const fpSrc = fs.readFileSync('./helpers/psDetection.js', 'utf8');
+
 const DEFAULT_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36';
 const MOBILE_USER_AGENT = 'Mozilla/5.0 (Linux; Android 10; Pixel 2 XL) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Mobile Safari/537.36';
 
@@ -38,7 +41,7 @@ function openBrowser(log, proxyHost, executablePath) {
             '--enable-blink-features=InterestCohortAPI',
             // '--enable-features="FederatedLearningOfCohorts:update_interval/10s/minimum_history_domain_size_required/1,FlocIdSortingLshBasedComputation,InterestCohortFeaturePolicy"',
             // Extra features for Privacy Sandbox APIs:
-            '--enable-features="PrivacySandboxAdsAPIsOverride,InterestGroupStorage,AdInterestGroupAPI,Fledge,FencedFrames,AllowURNsInIframes,BrowsingTopics,ConversionMeasurement,FederatedLearningOfCohorts:update_interval/10s/minimum_history_domain_size_required/1,FlocIdSortingLshBasedComputation,InterestCohortFeaturePolicy"',
+            '--enable-features="PrivacySandboxAdsAPIsOverride,InterestGroupStorage,AdInterestGroupAPI,Fledge,FencedFrames,AllowURNsInIframes,BrowsingTopics:time_period_per_epoch/15s,PrivacySandboxSettings3,OverridePrivacySandboxSettingsLocalTesting,ConversionMeasurement,FederatedLearningOfCohorts:update_interval/10s/minimum_history_domain_size_required/1,FlocIdSortingLshBasedComputation,InterestCohortFeaturePolicy"',
             '--js-flags="--async-stack-traces --stack-trace-limit 32"'
         ],
         // headless: 'new' // new headless mode https://developer.chrome.com/articles/new-headless/
@@ -167,7 +170,19 @@ async function getSiteData(context, url, {
 
     // optional function that should be run on every page (and subframe) in the browser context
     if (runInEveryFrame) {
-        page.evaluateOnNewDocument(runInEveryFrame);
+        await page.evaluateOnNewDocument(fpSrc);
+        await page.evaluateOnNewDocument(runInEveryFrame);
+    }
+
+    for (let collector of collectors) {
+        if(collector.id() === 'privacySandbox') {
+            try {
+                // eslint-disable-next-line no-await-in-loop
+                await (/** @type import("./collectors/PSCollector") */ (collector)).addListener(page);
+            } catch (e) {
+                log(chalk.yellow(`${collector.id()} failed to attach to page`), chalk.gray(e.message), chalk.gray(e.stack));
+            }
+        }
     }
 
     // We are creating CDP connection before page target is created, if we create it only after
@@ -246,7 +261,8 @@ async function getSiteData(context, url, {
             // eslint-disable-next-line no-await-in-loop
             const collectorData = await collector.getData({
                 finalUrl,
-                urlFilter: urlFilter && urlFilter.bind(null, finalUrl)
+                urlFilter: urlFilter && urlFilter.bind(null, finalUrl),
+                page
             });
             data[collector.id()] = collectorData;
             log(`getting ${collector.id()} data took ${getDataTimer.getElapsedTime()}s`);

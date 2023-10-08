@@ -328,6 +328,9 @@ class CMPCollector extends BaseCollector {
              */
             const promises = [];
             page.frames().forEach(frame => {
+                if(frame.detached) {
+                    return;
+                }
                 // eslint-disable-next-line no-undef
                 promises.push(frame.evaluate(() => document.documentElement.innerText).catch(reason => {
                     this.log(`error retrieving text: ${reason}`);
