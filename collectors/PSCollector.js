@@ -1,5 +1,8 @@
 const BaseCollector = require('./BaseCollector');
 const {scrollPageToBottom, scrollPageToTop} = require('puppeteer-autoscroll-down');
+const path = require('path');
+const https = require('https');
+const fs = require('fs');
 
 // Based on https://github.com/ua-reduction/ua-client-hints-crawler/blob/b972c07fcdfab0e60e440ae87220b61bb49b5ea7/collectors/FingerprintCollector.js
 
@@ -112,10 +115,36 @@ class PSCollector extends BaseCollector {
     }
 
     /**
-     * @param {{finalUrl: string, urlFilter?: function(string):boolean, page: any}} options
+     * @param {string} url 
+     * @param {string} outputPath 
+     * @param {string} folder 
+     */
+    async saveFileFromURL(url, outputPath, folder) {
+        try {
+            const decodedURL = new URL(url);
+            let filePath = path.join(outputPath, folder, decodedURL.hostname, decodedURL.pathname);
+            await fs.promises.mkdir(path.dirname(filePath), {recursive: true});
+
+            await new Promise(resolve => {
+                const file = fs.createWriteStream(filePath);
+                https.get(url, response => {
+                    response.pipe(file);
+                    file.on("finish", () => {
+                        file.close();
+                        resolve();
+                    });
+                });
+            });
+        } catch (error) {
+            this._log(`Error while downloading ${folder} logic`, error);
+        }
+    }
+
+    /**
+     * @param {{finalUrl: string, urlFilter?: function(string):boolean, page: any, outputPath: string}} options
      * @returns {Promise<{callStats: Object<string, import('./APICallCollector').APICallData>, savedCalls: import('./APICallCollector').SavedCall[]}>}
      */
-    async getData({urlFilter, page}) {
+    async getData({urlFilter, page, outputPath}) {
         /**
          * @type {Object<string, import('./APICallCollector').APICallData>}
          */
@@ -139,6 +168,42 @@ class PSCollector extends BaseCollector {
                          return result;
                      }, {});
              });
+        
+        // Collect interesting Protected Audience API scripts
+        for (const call of this._calls) {
+            if (call.description.endsWith("joinAdInterestGroup")) {
+                const config = call.arguments["0"];
+                if (!config || !config.owner || !config.biddingLogicUrl) {
+                    this._log("No bidding logic:\n", call.arguments);
+                    continue;
+                }
+                let url = config.biddingLogicUrl;
+                if (!this.isAcceptableUrl(url, urlFilter)) {
+                    url = config.owner + config.biddingLogicUrl;
+                }
+                if (!this.isAcceptableUrl(url, urlFilter)) {
+                    this._log("Bad bidding logic url:", config.owner, config.biddingLogicUrl);
+                    continue;
+                }
+                this.saveFileFromURL(url, outputPath, "bidding");
+            } else if (call.description.endsWith("runAdAuction")) {
+                const config = call.arguments[0];
+                if (!config || !config.seller || !config.decisionLogicUrl) {
+                    this._log("No decision logic:\n", call.arguments);
+                    continue;
+                }
+                let url = config.decisionLogicUrl;
+                if (!this.isAcceptableUrl(url, urlFilter)) {
+                    url = config.seller + config.decisionLogicUrl;
+                }
+                if (!this.isAcceptableUrl(url, urlFilter)) {
+                    this._log("Bad decision logic url:", config.seller, config.decisionLogicUrl);
+                    continue;
+                }
+                this.saveFileFromURL(url, outputPath, "decision");
+            }
+        }
+        
         return {
             callStats,
             savedCalls: this._calls.filter(call => this.isAcceptableUrl(call.source, urlFilter))

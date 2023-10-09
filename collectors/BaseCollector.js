@@ -34,7 +34,7 @@ class BaseCollector {
     /**
      * Called after the crawl to retrieve the data. Can be async, can throw errors.
      *
-     * @param {{finalUrl: string, urlFilter?: function(string):boolean, page: any}} options
+     * @param {{finalUrl: string, urlFilter?: function(string):boolean, page: any, outputPath: string}} options
      * @returns {Promise<Object>|Object}
      */
     // eslint-disable-next-line no-unused-vars
