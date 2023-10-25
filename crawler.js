@@ -39,9 +39,11 @@ function openBrowser(log, proxyHost, executablePath) {
         args: [
             // enable FLoC
             '--enable-blink-features=InterestCohortAPI',
-            // '--enable-features="FederatedLearningOfCohorts:update_interval/10s/minimum_history_domain_size_required/1,FlocIdSortingLshBasedComputation,InterestCohortFeaturePolicy"',
-            // Extra features for Privacy Sandbox APIs:
-            '--enable-features="PrivacySandboxAdsAPIsOverride,InterestGroupStorage,AdInterestGroupAPI,Fledge,FencedFrames,AllowURNsInIframes,BrowsingTopics:time_period_per_epoch/15s,PrivacySandboxSettings3,OverridePrivacySandboxSettingsLocalTesting,ConversionMeasurement,FederatedLearningOfCohorts:update_interval/10s/minimum_history_domain_size_required/1,FlocIdSortingLshBasedComputation,InterestCohortFeaturePolicy"',
+            '--enable-features="FederatedLearningOfCohorts:update_interval/10s/minimum_history_domain_size_required/1,FlocIdSortingLshBasedComputation,InterestCohortFeaturePolicy"',
+            // enable Topics API
+            '--enable-features=BrowsingTopics:time_period_per_epoch/15s,PrivacySandboxAdsAPIsOverride,PrivacySandboxSettings3,OverridePrivacySandboxSettingsLocalTesting',
+            // enable Protected Audience API
+            '--enable-features=AllowURNsInIframes,AttributionFencedFrameReportingBeacon,AttributionReportingCrossAppWeb,BiddingAndScoringDebugReportingAPI,BrowsingTopics,ConversionMeasurement,FencedFrames,Fledge,InterestGroupStorage,OverridePrivacySandboxSettingsLocalTesting,PrivacySandboxAdsAPIsOverride,PrivateAggregationApi,SharedStorageAPI',
             '--js-flags="--async-stack-traces --stack-trace-limit 32"'
         ],
         // headless: 'new' // new headless mode https://developer.chrome.com/articles/new-headless/
