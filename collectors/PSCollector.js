@@ -115,14 +115,15 @@ class PSCollector extends BaseCollector {
     }
 
     /**
-     * @param {string} url 
-     * @param {string} outputPath 
-     * @param {string} folder 
+     * @param {string} url file URL
+     * @param {string} outputPath path to put data in (from CLI)
+     * @param {string} folder  main folder to put the file in ("bidding" or "decision")
+     * @param {string} baseURL URL of the website being crawled
      */
-    async saveFileFromURL(url, outputPath, folder) {
+    async saveFileFromURL(url, outputPath, folder, baseURL) {
         try {
             const decodedURL = new URL(url);
-            let filePath = path.join(outputPath, folder, decodedURL.hostname, decodedURL.pathname);
+            let filePath = path.join(outputPath, folder, new URL(baseURL).hostname, decodedURL.hostname, decodedURL.pathname);
             await fs.promises.mkdir(path.dirname(filePath), {recursive: true});
 
             await new Promise(resolve => {
@@ -144,7 +145,7 @@ class PSCollector extends BaseCollector {
      * @param {{finalUrl: string, urlFilter?: function(string):boolean, page: any, outputPath: string}} options
      * @returns {Promise<{callStats: Object<string, import('./APICallCollector').APICallData>, savedCalls: import('./APICallCollector').SavedCall[]}>}
      */
-    async getData({urlFilter, page, outputPath}) {
+    async getData({finalUrl, urlFilter, page, outputPath}) {
         /**
          * @type {Object<string, import('./APICallCollector').APICallData>}
          */
@@ -185,7 +186,7 @@ class PSCollector extends BaseCollector {
                     this._log("Bad bidding logic url:", config.owner, config.biddingLogicUrl);
                     continue;
                 }
-                this.saveFileFromURL(url, outputPath, "bidding");
+                this.saveFileFromURL(url, outputPath, "bidding", finalUrl);
             } else if (call.description.endsWith("runAdAuction")) {
                 const config = call.arguments[0];
                 if (!config || !config.seller || !config.decisionLogicUrl) {
@@ -200,7 +201,7 @@ class PSCollector extends BaseCollector {
                     this._log("Bad decision logic url:", config.seller, config.decisionLogicUrl);
                     continue;
                 }
-                this.saveFileFromURL(url, outputPath, "decision");
+                this.saveFileFromURL(url, outputPath, "decision", finalUrl);
             }
         }
         
