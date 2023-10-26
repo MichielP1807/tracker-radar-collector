@@ -174,12 +174,12 @@ class PSCollector extends BaseCollector {
         for (const call of this._calls) {
             if (call.description.endsWith("joinAdInterestGroup")) {
                 const config = call.arguments["0"];
-                /** @type {any} */ 
-                const configNormalized = {}
+                /** @type {any} */
+                const configNormalized = {};
                 if (config) {
                     for (let key of Object.keys(config)) {
                         // Sometimes they use Url and sometimes URL...
-                        configNormalized[key.toLowerCase()] = config[key]
+                        configNormalized[key.toLowerCase()] = config[key];
                     }
                 }
                 if (!config || !configNormalized.biddinglogicurl) {
@@ -197,12 +197,12 @@ class PSCollector extends BaseCollector {
                 this.saveFileFromURL(url, outputPath, "bidding", finalUrl);
             } else if (call.description.endsWith("runAdAuction")) {
                 const config = call.arguments[0];
-                /** @type {any} */ 
-                const configNormalized = {}
+                /** @type {any} */
+                const configNormalized = {};
                 if (config) {
                     for (let key of Object.keys(config)) {
                         // Sometimes they use Url and sometimes URL...
-                        configNormalized[key.toLowerCase()] = config[key]
+                        configNormalized[key.toLowerCase()] = config[key];
                     }
                 }
                 if (!config || !configNormalized.decisionlogicurl) {
