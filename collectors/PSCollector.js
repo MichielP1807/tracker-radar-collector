@@ -174,31 +174,47 @@ class PSCollector extends BaseCollector {
         for (const call of this._calls) {
             if (call.description.endsWith("joinAdInterestGroup")) {
                 const config = call.arguments["0"];
-                if (!config || !config.owner || !config.biddingLogicUrl) {
+                /** @type {any} */ 
+                const configNormalized = {}
+                if (config) {
+                    for (let key of Object.keys(config)) {
+                        // Sometimes they use Url and sometimes URL...
+                        configNormalized[key.toLowerCase()] = config[key]
+                    }
+                }
+                if (!config || !configNormalized.biddinglogicurl) {
                     this._log("No bidding logic:\n", call.arguments);
                     continue;
                 }
-                let url = config.biddingLogicUrl;
+                let url = configNormalized.biddinglogicurl;
                 if (!this.isAcceptableUrl(url, urlFilter)) {
-                    url = config.owner + config.biddingLogicUrl;
+                    url = config.owner + configNormalized.biddinglogicurl;
                 }
                 if (!this.isAcceptableUrl(url, urlFilter)) {
-                    this._log("Bad bidding logic url:", config.owner, config.biddingLogicUrl);
+                    this._log("Bad bidding logic url:", config.owner, configNormalized.biddinglogicurl);
                     continue;
                 }
                 this.saveFileFromURL(url, outputPath, "bidding", finalUrl);
             } else if (call.description.endsWith("runAdAuction")) {
                 const config = call.arguments[0];
-                if (!config || !config.seller || !config.decisionLogicUrl) {
+                /** @type {any} */ 
+                const configNormalized = {}
+                if (config) {
+                    for (let key of Object.keys(config)) {
+                        // Sometimes they use Url and sometimes URL...
+                        configNormalized[key.toLowerCase()] = config[key]
+                    }
+                }
+                if (!config || !configNormalized.decisionlogicurl) {
                     this._log("No decision logic:\n", call.arguments);
                     continue;
                 }
-                let url = config.decisionLogicUrl;
+                let url = configNormalized.decisionlogicurl;
                 if (!this.isAcceptableUrl(url, urlFilter)) {
-                    url = config.seller + config.decisionLogicUrl;
+                    url = config.seller + configNormalized.decisionlogicurl;
                 }
                 if (!this.isAcceptableUrl(url, urlFilter)) {
-                    this._log("Bad decision logic url:", config.seller, config.decisionLogicUrl);
+                    this._log("Bad decision logic url:", config.seller, configNormalized.decisionlogicurl);
                     continue;
                 }
                 this.saveFileFromURL(url, outputPath, "decision", finalUrl);
