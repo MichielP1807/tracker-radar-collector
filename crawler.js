@@ -323,7 +323,7 @@ module.exports = async (url, options) => {
 
     let data = null;
 
-    const maxLoadTimeMs = options.maxLoadTimeMs || 30000;
+    const maxLoadTimeMs = options.maxLoadTimeMs || 30000 * 3; // times 3 to accommodate for additional subpages being crawled
     const extraExecutionTimeMs = options.extraExecutionTimeMs || 2500;
     const maxTotalTimeMs = maxLoadTimeMs * 2;
 
