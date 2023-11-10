@@ -27,11 +27,12 @@ class PSCollector extends BaseCollector {
          */
         this._stats = new Map();
         /**
-         * @type {{ source: any; description: string; arguments: any; returnValue: any; accessType: string, frameURL: string}[]}
+         * @type {{ source: any; description: string; arguments: any; returnValue: any; accessType: string, frameURL: string, referrer: string, subpageIndex: number}[]}
          */
         this._calls = [];
         this._callStats = {};
         this._log = log;
+        this._subpageIndex = -1;
     }
 
     /**
@@ -67,7 +68,9 @@ class PSCollector extends BaseCollector {
                 arguments: apiCall.args,
                 returnValue: apiCall.retVal,
                 accessType: apiCall.accessType,
-                frameURL: apiCall.frameUrl
+                frameURL: apiCall.frameUrl,
+                referrer: apiCall.referrer,
+                subpageIndex: this._subpageIndex
             });
         });
     }
@@ -234,6 +237,7 @@ class PSCollector extends BaseCollector {
 
                 // Goto linked subpage (more reliable then trying to click the button)
                 await page.goto(link.href, {timeout: 60000}); // 60 seconds timeout
+                this._subpageIndex = crawledSubpages.length;
                 await page.waitForTimeout(5000);  // wait for new tab to be opened
 
                 try {

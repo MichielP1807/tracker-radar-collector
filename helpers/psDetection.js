@@ -64,7 +64,8 @@
                     args: arguments,
                     retVal,
                     source,
-                    frameUrl
+                    frameUrl,
+                    referrer: document.referrer
                 };
                 console_log(`Calling calledAPIEvent with ${JSON.stringify(callDetails)}`);
                 // send the call details to the node context
@@ -107,7 +108,8 @@
                     accessType: "get",
                     args: "",
                     source,
-                    frameUrl
+                    frameUrl,
+                    referrer: document.referrer
                 };
                 // send the call details to the node context
                 // @ts-ignore
