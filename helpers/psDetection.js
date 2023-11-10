@@ -34,28 +34,28 @@
     };
 
     const interceptFunctionCall = function (elementType, funcName) {
-      // save the original function using a closure
+        // save the original function using a closure
         console_log(`Intercepting ${elementType.name}.${funcName}`);
         const origFunc = elementType.prototype[funcName];
-      // overwrite the object method with our own
+        // overwrite the object method with our own
         Object.defineProperty(elementType.prototype, funcName, {
             value () {
-          // execute the original function
+                // execute the original function
                 const retVal = origFunc.apply(this, arguments);
                 const calledFunc = `${elementType.name}.${funcName}`;
-          // check and enforce the limits
-          // increment the call countl init if needed
+                // check and enforce the limits
+                // increment the call count or init if needed
                 accessCounts[calledFunc] = (accessCounts[calledFunc] || 0) + 1;
                 const callCnt = accessCounts[calledFunc];  // just a shorthand
                 if (callCnt >= MAX_NUM_CALLS_TO_INTERCEPT) {
                     console_log(`Reached max number of calls for ${calledFunc}: ${callCnt}`);
-            // revert the function to its original state
+                    // revert the function to its original state
                     Object.defineProperty(elementType.prototype, funcName, {
                         value () {return origFunc.apply(this, arguments);}
                     });
                     return retVal;
                 }
-          // we still haven't reached the limit; we intercept the call
+                // we still haven't reached the limit; we intercept the call
                 console_log(`Intercepted call to ${calledFunc} ${callCnt} times`);
                 const source = getSourceFromStack();
                 const callDetails = {
@@ -67,39 +67,39 @@
                     frameUrl
                 };
                 console_log(`Calling calledAPIEvent with ${JSON.stringify(callDetails)}`);
-          // send the call details to the node context
-          // @ts-ignore
+                // send the call details to the node context
+                // @ts-ignore
                 window.calledAPIEvent(callDetails);
                 return retVal;
             }
         });
     };
     const interceptPropAccess = function (elementType, propertyName) {
-      // Limit api calls to intercept
-      // save the original property descriptor using a closure
+        // Limit api calls to intercept
+        // save the original property descriptor using a closure
         const origObjPropDesc = Object.getOwnPropertyDescriptor(
         elementType.prototype,
         propertyName
       );
-      // log property name
+        // log property name
         const accessedProp = `${elementType.name}.${propertyName}`;
         Object.defineProperty(elementType.prototype, propertyName, {
             enumerable: true,
             configurable: true,
             get () {
                 let returnVal = origObjPropDesc.get.call(this);
-          // check and enforce the limits
+                // check and enforce the limits
                 accessCounts[accessedProp] = (accessCounts[accessedProp] || 0) + 1;
                 const accessCnt = accessCounts[accessedProp];  // just a shorthand
                 if (accessCnt >= MAX_NUM_CALLS_TO_INTERCEPT) {
                     console_log(`Reached max number of accesses for ${accessedProp}: ${accessCnt} `);
-            // revert the setter to its original state
+                    // revert the setter to its original state
                     Object.defineProperty(elementType.prototype, propertyName, {
                         get () {return origObjPropDesc.get.call(this);}
                     });
                     return;
                 }
-          // we still haven't reached the limit; we intercept the access
+                // we still haven't reached the limit; we intercept the access
                 console_log(`Intercepted property access (get) ${accessedProp} (${accessCnt} times)`);
                 const source = getSourceFromStack();
                 const callDetails = {
@@ -109,27 +109,27 @@
                     source,
                     frameUrl
                 };
-          // send the call details to the node context
-          // @ts-ignore
+                // send the call details to the node context
+                // @ts-ignore
                 window.calledAPIEvent(callDetails);
                 return returnVal;
             },  // TODO
             set (value) {
-          // set the given value using the original property setter
+                // set the given value using the original property setter
                 origObjPropDesc.set.call(this, value);
 
-          // check and enforce the limits
+                // check and enforce the limits
                 accessCounts[accessedProp] = (accessCounts[accessedProp] || 0) + 1;
                 const accessCnt = accessCounts[accessedProp];  // just a shorthand
                 if (accessCnt >= MAX_NUM_CALLS_TO_INTERCEPT) {
                     console_log(`Reached max number of accesses for ${accessedProp}: ${accessCnt} `);
-            // revert the setter to its original state
+                    // revert the setter to its original state
                     Object.defineProperty(elementType.prototype, propertyName, {
                         set () {return origObjPropDesc.set.call(this, value);}
                     });
                     return;
                 }
-          // we still haven't reached the limit; we intercept the access
+                // we still haven't reached the limit; we intercept the access
                 console_log(`Intercepted property access (set) ${accessedProp} (${accessCnt} times)`);
                 const source = getSourceFromStack();
                 const callDetails = {
@@ -139,8 +139,8 @@
                     source,
                     frameUrl
                 };
-          // send the call details to the node context
-          // @ts-ignore
+                // send the call details to the node context
+                // @ts-ignore
                 window.calledAPIEvent(callDetails);
             },
         });
