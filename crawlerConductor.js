@@ -36,6 +36,7 @@ async function crawlAndSaveData(urlString, dataCollectors, log, filterOutFirstPa
      */
     const prefixedLog = (...msg) => log(chalk.gray(`${url.hostname}:`), ...msg);
 
+    // @ts-ignore
     const data = await crawl(url, {
         log: prefixedLog,
         // @ts-ignore
@@ -70,6 +71,11 @@ module.exports = async options => {
         process.setMaxListeners(numberOfCrawlers + 1);
     }
     log(chalk.cyan(`Number of crawlers: ${numberOfCrawlers}\n`));
+
+    // @ts-ignore
+    process.on('uncaughtException', (err, origin) => {
+        log(chalk.red(`UNCAUGHT EXCEPTION! ${err} from ${origin}`));
+    });
 
     /**
      * @type {string}

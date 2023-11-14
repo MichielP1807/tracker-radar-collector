@@ -3,8 +3,9 @@ const BaseCollector = require('./BaseCollector');
 const {scrollPageToBottom, scrollPageToTop} = require('puppeteer-autoscroll-down');
 const path = require('path');
 const tld = require('tldts');
-const https = require('https');
+// const https = require('https');
 const fs = require('fs');
+const axios = require("axios").default;
 
 const linkCollectorSrc = fs.readFileSync('./helpers/linkCollector.js', 'utf8');
 
@@ -173,16 +174,31 @@ class PSCollector extends BaseCollector {
             let filePath = path.join(outputPath, folder, new URL(baseURL).hostname, url.hostname, url.pathname);
             await fs.promises.mkdir(path.dirname(filePath), {recursive: true});
 
-            await new Promise(resolve => {
-                const file = fs.createWriteStream(filePath);
-                https.get(url, response => {
-                    response.pipe(file);
-                    file.on("finish", () => {
-                        file.close();
-                        resolve();
-                    });
-                });
+            const DEFAULT_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36';
+            const response = await axios.get(url.href, {responseType: "stream", headers: {'User-Agent': DEFAULT_USER_AGENT}});
+            const file = fs.createWriteStream(filePath);
+            const stream = response.data.pipe(file);
+            stream.on("finish", () => file.close());
+            // @ts-ignore
+            stream.on("error", error => {
+                file.close();
+                this._log(`Error while downloading ${folder} logic from ${url}:`, error.message);
             });
+
+            // await new Promise(resolve => {
+            //     try {
+            //         https.get(url, response => {
+            //             try {
+            //                 response.pipe(file);
+            //                 file.on("finish", () => resolve());
+            //             } catch (error) {
+            //                 this._log(`Error while downloading ${folder} logic`, error);
+            //             }
+            //         });
+            //     } catch (error) {
+            //         this._log(`Error while downloading ${folder} logic`, error);
+            //     }
+            // });
         } catch (error) {
             this._log(`Error while downloading ${folder} logic`, error);
         }

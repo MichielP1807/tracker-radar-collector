@@ -39,6 +39,7 @@
   "dependencies": {
     "@duckduckgo/autoconsent": "^4.1.1",
     "async": "^2.6.1",
+    "axios": "^1.6.1",
     "chalk": "^2.4.1",
     "clickhouse": "^2.6.0",
     "commander": "^2.19.0",
