@@ -156,5 +156,7 @@
 
     // Protected Audience API
     interceptFunctionCall(Navigator, 'joinAdInterestGroup');
+    interceptFunctionCall(Navigator, 'updateAdInterestGroups');
+    interceptFunctionCall(Navigator, 'leaveAdInterestGroup');
     interceptFunctionCall(Navigator, 'runAdAuction');
 }());

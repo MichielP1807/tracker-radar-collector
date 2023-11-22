@@ -17,6 +17,8 @@ const breakpoints = [
         methods: [
             // Protected Audience API
             {name: 'joinAdInterestGroup', saveArguments: true},
+            {name: 'updateAdInterestGroups', saveArguments: true},
+            {name: 'leaveAdInterestGroup', saveArguments: true},
             {name: 'runAdAuction', saveArguments: true},
         ]
     },
