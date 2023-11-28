@@ -206,7 +206,7 @@ class PSCollector extends BaseCollector {
 
     /**
      * @param {{finalUrl: string, urlFilter?: function(string):boolean, page: import('puppeteer-core').Page, outputPath: string}} options
-     * @returns {Promise<{callStats: Object<string, import('./APICallCollector').APICallData>, savedCalls: import('./APICallCollector').SavedCall[], crawledSubpages: { initialUrl: string; finalUrl: string; timestamp: number; }[]}>}
+     * @returns {Promise<{callStats: Object<string, import('./APICallCollector').APICallData>, savedCalls: import('./APICallCollector').SavedCall[], crawledSubpages: SubpageData[]}>}
      */
     async getData({finalUrl, urlFilter, page, outputPath}) {
         /**
@@ -232,15 +232,20 @@ class PSCollector extends BaseCollector {
         this._log(`Found ${links.length} links for ${pageDomain}`);
 
         const NR_OF_SUBPAGES_TO_CRAWL = 2;
+
+        /**
+         * @type {SubpageData[]}
+         */
         const crawledSubpages = [];
+        
         for (const link of links) {
             if (!link.href) {continue;}
             // convert relative links to absolute
             link.href = new URL(link.href, pageUrl).href;
             const linkUrlStripped = link.href.replace(/#$/, '').replace(/\/$/, '');
-            if (!this.isClickCandidate(linkUrlStripped, pageDomain, pageUrl)) {
-                continue;
-            }
+
+            if (!this.isClickCandidate(linkUrlStripped, pageDomain, pageUrl)) {continue;}
+            if (crawledSubpages.some(subpage => subpage.initialUrl === link.href || subpage.finalUrl === link.href)) {continue;}
 
             // Click on the link
             try {
@@ -340,6 +345,13 @@ class PSCollector extends BaseCollector {
 }
 
 module.exports = PSCollector;
+
+/**
+ * @typedef SubpageData
+ * @property {string} initialUrl
+ * @property {string} finalUrl
+ * @property {number} timestamp
+ */
 
 /**
  * @typedef TargetData
