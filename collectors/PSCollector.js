@@ -121,7 +121,7 @@ class PSCollector extends BaseCollector {
             this._log(`Will skip the external link: ${linkUrlStripped}`);
             return false;
         }
-        
+
         // no pdf, png etc, links
         if (EXCLUDED_EXTS.some(fileExt => linkUrlStripped.includes(fileExt))) {
             this._log(`Bad file extension, will skip: ${linkUrlStripped}`);
@@ -206,7 +206,7 @@ class PSCollector extends BaseCollector {
 
     /**
      * @param {{finalUrl: string, urlFilter?: function(string):boolean, page: import('puppeteer-core').Page, outputPath: string}} options
-     * @returns {Promise<{callStats: Object<string, import('./APICallCollector').APICallData>, savedCalls: import('./APICallCollector').SavedCall[], crawledSubpages: string[]}>}
+     * @returns {Promise<{callStats: Object<string, import('./APICallCollector').APICallData>, savedCalls: import('./APICallCollector').SavedCall[], crawledSubpages: { initialUrl: string; finalUrl: string; timestamp: number; }[]}>}
      */
     async getData({finalUrl, urlFilter, page, outputPath}) {
         /**
@@ -221,7 +221,7 @@ class PSCollector extends BaseCollector {
         }
         this._log('Waiting for 5 seconds');
         await page.waitForTimeout(5000);
-        
+
         /**
          * @type {{distance: number, href: string, title: string, text: string, xpath: string}[]}
          */
@@ -241,7 +241,7 @@ class PSCollector extends BaseCollector {
             if (!this.isClickCandidate(linkUrlStripped, pageDomain, pageUrl)) {
                 continue;
             }
-            
+
             // Click on the link
             try {
                 /* eslint-disable no-await-in-loop */
@@ -252,6 +252,7 @@ class PSCollector extends BaseCollector {
                 //     await linkElement.click();
 
                 // Goto linked subpage (more reliable then trying to click the button)
+                const switchTime = Date.now();
                 await page.goto(link.href, {timeout: 60000}); // 60 seconds timeout
                 this._subpageIndex = crawledSubpages.length;
                 await page.waitForTimeout(5000);  // wait for new tab to be opened
@@ -263,7 +264,11 @@ class PSCollector extends BaseCollector {
                     this._log('Error while scrolling page', error);
                 }
 
-                crawledSubpages.push(link.href);
+                crawledSubpages.push({
+                    initialUrl: link.href,
+                    finalUrl: page.url(),
+                    timestamp: switchTime
+                });
                 if (crawledSubpages.length >= NR_OF_SUBPAGES_TO_CRAWL) {break;}
             } catch (error) {
                 this._log(`Error navigating to ${link.href}: ${error.message}`);
@@ -280,7 +285,7 @@ class PSCollector extends BaseCollector {
                 return result;
             }, {});
         });
-        
+
         // Collect interesting Protected Audience API scripts
         for (const call of this._calls) {
             if (call.description.endsWith("joinAdInterestGroup")) {
@@ -325,7 +330,7 @@ class PSCollector extends BaseCollector {
                 this.saveFileFromURL(url, outputPath, "decision", finalUrl);
             }
         }
-        
+
         return {
             callStats,
             savedCalls: this._calls.filter(call => this.getAcceptableUrl(call.source, urlFilter, null)),
