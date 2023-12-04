@@ -323,9 +323,9 @@ module.exports = async (url, options) => {
 
     let data = null;
 
-    const maxLoadTimeMs = options.maxLoadTimeMs || 30000 * 3; // times 3 to accommodate for additional subpages being crawled
+    const maxLoadTimeMs = options.maxLoadTimeMs || 30000;
     const extraExecutionTimeMs = options.extraExecutionTimeMs || 2500;
-    const maxTotalTimeMs = maxLoadTimeMs * 2;
+    const maxTotalTimeMs = maxLoadTimeMs * 2 * 2; // additional times 2 to accommodate for additional subpage being crawled
 
     try {
         data = await wait(getSiteData(context, url, {

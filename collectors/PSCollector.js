@@ -5,6 +5,8 @@ const path = require('path');
 const tld = require('tldts');
 // const https = require('https');
 const fs = require('fs');
+const puppeteer = require('puppeteer');
+const chalk = require('chalk').default;
 const axios = require("axios").default;
 
 const linkCollectorSrc = fs.readFileSync('./helpers/linkCollector.js', 'utf8');
@@ -184,21 +186,6 @@ class PSCollector extends BaseCollector {
                 file.close();
                 this._log(`Error while downloading ${folder} logic from ${url}:`, error.message);
             });
-
-            // await new Promise(resolve => {
-            //     try {
-            //         https.get(url, response => {
-            //             try {
-            //                 response.pipe(file);
-            //                 file.on("finish", () => resolve());
-            //             } catch (error) {
-            //                 this._log(`Error while downloading ${folder} logic`, error);
-            //             }
-            //         });
-            //     } catch (error) {
-            //         this._log(`Error while downloading ${folder} logic`, error);
-            //     }
-            // });
         } catch (error) {
             this._log(`Error while downloading ${folder} logic`, error);
         }
@@ -231,7 +218,7 @@ class PSCollector extends BaseCollector {
         const pageDomain = tld.getDomain(pageUrl);
         this._log(`Found ${links.length} links for ${pageDomain}`);
 
-        const NR_OF_SUBPAGES_TO_CRAWL = 2;
+        const NR_OF_SUBPAGES_TO_CRAWL = 1;
 
         /**
          * @type {SubpageData[]}
@@ -257,10 +244,22 @@ class PSCollector extends BaseCollector {
                 //     await linkElement.click();
 
                 // Goto linked subpage (more reliable then trying to click the button)
+                let timeout = false;
                 const switchTime = Date.now();
-                await page.goto(link.href, {timeout: 60000}); // 60 seconds timeout
                 this._subpageIndex = crawledSubpages.length;
-                await page.waitForTimeout(5000);  // wait for new tab to be opened
+
+                try {
+                    await page.goto(link.href, {timeout: 30000, waitUntil: 'networkidle0'});
+                } catch (e) {
+                    if (e instanceof puppeteer.errors.TimeoutError || (e.name && e.name === 'TimeoutError')) {
+                        this._log(chalk.yellow('Navigation timeout exceeded.'));
+                        timeout = true;
+                    } else {
+                        throw e;
+                    }
+                }
+
+                await page.waitForTimeout(2500);  // wait for new tab to be opened
 
                 try {
                     this._log('Scrolling page to bottom and up');
@@ -272,7 +271,8 @@ class PSCollector extends BaseCollector {
                 crawledSubpages.push({
                     initialUrl: link.href,
                     finalUrl: page.url(),
-                    timestamp: switchTime
+                    timestamp: switchTime,
+                    timeout
                 });
                 if (crawledSubpages.length >= NR_OF_SUBPAGES_TO_CRAWL) {break;}
             } catch (error) {
@@ -351,6 +351,7 @@ module.exports = PSCollector;
  * @property {string} initialUrl
  * @property {string} finalUrl
  * @property {number} timestamp
+ * @property {boolean} timeout
  */
 
 /**
